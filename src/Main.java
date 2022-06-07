@@ -52,10 +52,10 @@ public class Main {
 
         MyArrayList<String> myArrList;
         myArrList = new MyArrayList<>();
-        myArrList.add("linkedListString 0");
-        myArrList.add("linkedListString 1");
-        myArrList.add("linkedListString 2");
-        myArrList.add("linkedListString 3");
+        myArrList.add("myArrayListString 0");
+        myArrList.add("myArrayListString 1");
+        myArrList.add("myArrayListString 2");
+        myArrList.add("myArrayListString 3");
         myArrList.add(2, "inserted in pos. 2");
         arrayPrintOut(myArrList);
 
