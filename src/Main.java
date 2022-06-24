@@ -48,19 +48,37 @@ public class Main {
         }
         arrayPrintOut(aList);
 
-        System.out.println("Task 2 - MyArrayList");
+        System.out.println("Task 2 - MyLinkedList");
+        MyLinkedList<String> lList;
+        lList = new MyLinkedList<>();
+        lList.add("arrayListString 0");
+        lList.add("arrayListString 1");
+        lList.add("arrayListString 2");
+        lList.add("arrayListString 3");
+        arrayPrintOut(aList);
+        lList.add(2, "inserted in pos 2");
+        if (lList.contains("arrayListString 1")) { // Удаление по объекту
+            lList.remove("arrayListString 1");
+        }
+        f = lLst.indexOf("linkedList 3"); // Удаление по индексу
+        if (f >= 0) {
+            lLst.remove(f);
+        }
+        arrayPrintOut(lList);
+
+        System.out.println("Task 3 - MyArrayList");
 
         MyArrayList<String> myArrList;
         myArrList = new MyArrayList<>();
-        myArrList.add("myArrayListString 0");
-        myArrList.add("myArrayListString 1");
-        myArrList.add("myArrayListString 2");
-        myArrList.add("myArrayListString 3");
+        myArrList.add("arrayListString 0");
+        myArrList.add("arrayListString 1");
+        myArrList.add("arrayListString 2");
+        myArrList.add("arrayListString 3");
         myArrList.add(2, "inserted in pos. 2");
         arrayPrintOut(myArrList);
 
 
-        System.out.println("Task 3 - MyLinkedList");
+
 
 
     }

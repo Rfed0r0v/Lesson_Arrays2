@@ -1,73 +1,20 @@
 import java.util.*;
 import java.util.function.Consumer;
 
-/**
- * Doubly-linked list implementation of the {@code List} and {@code Deque}
- * interfaces.  Implements all optional list operations, and permits all
- * elements (including {@code null}).
- *
- * <p>All of the operations perform as could be expected for a doubly-linked
- * list.  Operations that index into the list will traverse the list from
- * the beginning or the end, whichever is closer to the specified index.
- *
- * <p><strong>Note that this implementation is not synchronized.</strong>
- * If multiple threads access a linked list concurrently, and at least
- * one of the threads modifies the list structurally, it <i>must</i> be
- * synchronized externally.  (A structural modification is any operation
- * that adds or deletes one or more elements; merely setting the value of
- * an element is not a structural modification.)  This is typically
- * accomplished by synchronizing on some object that naturally
- * encapsulates the list.
- * <p>
- * If no such object exists, the list should be "wrapped" using the
- * <p>
- * method.  This is best done at creation time, to prevent accidental
- * unsynchronized access to the list:<pre>
- *   List list = Collections.synchronizedList(new LinkedList(...));</pre>
- *
- * <p>The iterators returned by this class's {@code iterator} and
- * {@code listIterator} methods are <i>fail-fast</i>: if the list is
- * structurally modified at any time after the iterator is created, in
- * any way except through the Iterator's own {@code remove} or
- * {@code add} methods, the iterator will throw a {@link
- * ConcurrentModificationException}.  Thus, in the face of concurrent
- * modification, the iterator fails quickly and cleanly, rather than
- * risking arbitrary, non-deterministic behavior at an undetermined
- * time in the future.
- *
- * <p>Note that the fail-fast behavior of an iterator cannot be guaranteed
- * as it is, generally speaking, impossible to make any hard guarantees in the
- * presence of unsynchronized concurrent modification.  Fail-fast iterators
- * throw {@code ConcurrentModificationException} on a best-effort basis.
- * Therefore, it would be wrong to write a program that depended on this
- * exception for its correctness:   <i>the fail-fast behavior of iterators
- * should be used only to detect bugs.</i>
- *
- * <p>This class is a member of the
- * <a href="{@docRoot}/java.base/java/util/package-summary.html#CollectionsFramework">
- * Java Collections Framework</a>.
- *
- * @param <E> the type of elements held in this collection
- * @author Josh Bloch
- * @see List
- * @see ArrayList
- * @since 1.2
- */
-
-public class MyLinkedList<E>
+public class MyLinkedList<E>// дополняет AbstractSequentialList и применяет методы List, Deque, Cloneable, java.io.Serializable
         extends AbstractSequentialList<E>
         implements List<E>, Deque<E>, Cloneable, java.io.Serializable {
-    transient int size = 0;
+    transient int size = 0; //установим размер, не для передачи
 
     /**
      * Pointer to first node.
      */
-    transient java.util.LinkedList.Node<E> first;
+    transient Node<E> first;// создадим одну точку
 
     /**
      * Pointer to last node.
      */
-    transient java.util.LinkedList.Node<E> last;
+    transient Node<E> last;// создадим вторую точку
 
     /*
     void dataStructureInvariants() {
@@ -91,7 +38,7 @@ public class MyLinkedList<E>
      * @param c the collection whose elements are to be placed into this list
      * @throws NullPointerException if the specified collection is null
      */
-    public MyLinkedList(Collection<? extends E> c) {
+    public MyLinkedList(Collection<? extends E> c) { // добавим интерфейс Collection
         this();
         addAll(c);
     }
@@ -99,56 +46,56 @@ public class MyLinkedList<E>
     /**
      * Links e as first element.
      */
-    private void linkFirst(E e) {
-        final java.util.LinkedList.Node<E> f = first;
-        final java.util.LinkedList.Node<E> newNode = new java.util.LinkedList.Node<>(null, e, f);
-        first = newNode;
-        if (f == null)
-            last = newNode;
+    private void linkFirst(E e) { // е - первая точка
+        final Node<E> f = first; // в f - бывшая первая точка, сохраним ее
+        final Node<E> newNode = new Node<>(null, e, f); // е - новая первая точка
+        first = newNode; // присвоим новую первую точку
+        if (f == null) // если бывшей первой точки фактически не было
+            last = newNode; // last -тоже что и first
         else
-            f.prev = newNode;
-        size++;
-        modCount++;
+            f.prev = newNode;//
+        size++;// увеличим размер на 1
+        modCount++; // увеличим количество изменений
     }
 
     /**
      * Links e as last element.
      */
-    void linkLast(E e) {
-        final java.util.LinkedList.Node<E> l = last;
-        final java.util.LinkedList.Node<E> newNode = new java.util.LinkedList.Node<>(l, e, null);
-        last = newNode;
-        if (l == null)
-            first = newNode;
+    void linkLast(E e) {// е - последняя точка
+        final Node<E> l = last;// бывшая последняя точка, сохраним ее
+        final Node<E> newNode = new Node<>(l, e, null); // е - новая последняя точка
+        last = newNode;// присвоим новую последнюю точку
+        if (l == null) // если бывшей последней точки фактически не было
+            first = newNode; // первая = последняя
         else
-            l.next = newNode;
-        size++;
-        modCount++;
+            l.next = newNode;//
+        size++;// увеличим размер на 1
+        modCount++;// увеличим количество изменений
     }
 
     /**
      * Inserts element e before non-null Node succ.
      */
-    void linkBefore(E e, java.util.LinkedList.Node<E> succ) {
+    void linkBefore(E e, Node<E> succ) { // вставим элемент перед точкой
         // assert succ != null;
-        final java.util.LinkedList.Node<E> pred = succ.prev;
-        final java.util.LinkedList.Node<E> newNode = new java.util.LinkedList.Node<>(pred, e, succ);
-        succ.prev = newNode;
-        if (pred == null)
+        final Node<E> pred = succ.prev; // сохраним старое
+        final Node<E> newNode = new Node<>(pred, e, succ); // создадим новое
+        succ.prev = newNode;// присвоим старому
+        if (pred == null)// если его не было, сделаем первым
             first = newNode;
         else
             pred.next = newNode;
-        size++;
-        modCount++;
+        size++; // размер ++
+        modCount++;// изменения ++
     }
 
     /**
      * Unlinks non-null first node f.
      */
-    private E unlinkFirst(java.util.LinkedList.Node<E> f) {
+    private E unlinkFirst(Node<E> f) { // удалим первый элемент и вернем его
         // assert f == first && f != null;
         final E element = f.item;
-        final java.util.LinkedList.Node<E> next = f.next;
+        final Node<E> next = f.next;
         f.item = null;
         f.next = null; // help GC
         first = next;
@@ -164,10 +111,10 @@ public class MyLinkedList<E>
     /**
      * Unlinks non-null last node l.
      */
-    private E unlinkLast(java.util.LinkedList.Node<E> l) {
+    private E unlinkLast(Node<E> l) { // удалим последний элемент и вернем его
         // assert l == last && l != null;
         final E element = l.item;
-        final java.util.LinkedList.Node<E> prev = l.prev;
+        final Node<E> prev = l.prev;
         l.item = null;
         l.prev = null; // help GC
         last = prev;
@@ -183,11 +130,11 @@ public class MyLinkedList<E>
     /**
      * Unlinks non-null node x.
      */
-    E unlink(java.util.LinkedList.Node<E> x) {
+    E unlink(Node<E> x) {
         // assert x != null;
         final E element = x.item;
-        final java.util.LinkedList.Node<E> next = x.next;
-        final java.util.LinkedList.Node<E> prev = x.prev;
+        final Node<E> next = x.next;
+        final Node<E> prev = x.prev;
 
         if (prev == null) {
             first = next;
@@ -215,11 +162,11 @@ public class MyLinkedList<E>
      * @return the first element in this list
      * @throws NoSuchElementException if this list is empty
      */
-    public E getFirst() {
-        final java.util.LinkedList.Node<E> f = first;
-        if (f == null)
+    public E getFirst() {// получение первого элемента
+        final Node<E> f = first;
+        if (f == null) // если его нет - исключение
             throw new NoSuchElementException();
-        return f.item;
+        return f.item; // если есть - вернем
     }
 
     /**
@@ -228,11 +175,11 @@ public class MyLinkedList<E>
      * @return the last element in this list
      * @throws NoSuchElementException if this list is empty
      */
-    public E getLast() {
-        final java.util.LinkedList.Node<E> l = last;
-        if (l == null)
+    public E getLast() {// получение последнего элемента
+        final Node<E> l = last;
+        if (l == null) // если его нет - исключение
             throw new NoSuchElementException();
-        return l.item;
+        return l.item; // если есть - вернем
     }
 
     /**
@@ -241,11 +188,11 @@ public class MyLinkedList<E>
      * @return the first element from this list
      * @throws NoSuchElementException if this list is empty
      */
-    public E removeFirst() {
-        final java.util.LinkedList.Node<E> f = first;
-        if (f == null)
+    public E removeFirst() { // удаление певого элемента
+        final Node<E> f = first;
+        if (f == null) // если его нет - исключение
             throw new NoSuchElementException();
-        return unlinkFirst(f);
+        return unlinkFirst(f); // если есть - удалим
     }
 
     /**
@@ -254,11 +201,11 @@ public class MyLinkedList<E>
      * @return the last element from this list
      * @throws NoSuchElementException if this list is empty
      */
-    public E removeLast() {
-        final java.util.LinkedList.Node<E> l = last;
-        if (l == null)
+    public E removeLast() { // удаление последнего эдемента
+        final Node<E> l = last;
+        if (l == null) // если его нет - исключение
             throw new NoSuchElementException();
-        return unlinkLast(l);
+        return unlinkLast(l); // если есть - удалим
     }
 
     /**
@@ -268,7 +215,7 @@ public class MyLinkedList<E>
      */
     public void addFirst(E e) {
         linkFirst(e);
-    }
+    }// добавление в начало
 
     /**
      * Appends the specified element to the end of this list.
@@ -279,7 +226,7 @@ public class MyLinkedList<E>
      */
     public void addLast(E e) {
         linkLast(e);
-    }
+    } // добавление в конец
 
     /**
      * Returns {@code true} if this list contains the specified element.
@@ -291,7 +238,7 @@ public class MyLinkedList<E>
      * @return {@code true} if this list contains the specified element
      */
     public boolean contains(Object o) {
-        return indexOf(o) >= 0;
+        return indexOf(o) >= 0; // если найден объект вернем true
     }
 
     /**
@@ -301,18 +248,18 @@ public class MyLinkedList<E>
      */
     public int size() {
         return size;
-    }
+    } // вернем размер
 
     /**
      * Appends the specified element to the end of this list.
      *
      * <p>This method is equivalent to {@link #addLast}.
      *
-     * @param e element to be appended to this list
+     * @param array element to be appended to this list
      * @return {@code true} (as specified by {@link Collection#add})
      */
-    public boolean add(E e) {
-        linkLast(e);
+    public boolean add(E array) {// добавляем в конец
+        linkLast(array);
         return true;
     }
 
@@ -329,16 +276,16 @@ public class MyLinkedList<E>
      * @param o element to be removed from this list, if present
      * @return {@code true} if this list contained the specified element
      */
-    public boolean remove(Object o) {
+    public boolean remove(Object o) { // поиск первого вхождения объекта и его удаление
         if (o == null) {
-            for (java.util.LinkedList.Node<E> x = first; x != null; x = x.next) {
+            for (Node<E> x = first; x != null; x = x.next) { // отдельно для null
                 if (x.item == null) {
                     unlink(x);
                     return true;
                 }
             }
         } else {
-            for (java.util.LinkedList.Node<E> x = first; x != null; x = x.next) {
+            for (Node<E> x = first; x != null; x = x.next) {// отдельно для не null
                 if (o.equals(x.item)) {
                     unlink(x);
                     return true;
@@ -362,7 +309,7 @@ public class MyLinkedList<E>
      */
     public boolean addAll(Collection<? extends E> c) {
         return addAll(size, c);
-    }
+    } // добавление других объектов в конец
 
     /**
      * Inserts all of the elements in the specified collection into this
@@ -379,7 +326,7 @@ public class MyLinkedList<E>
      * @throws IndexOutOfBoundsException {@inheritDoc}
      * @throws NullPointerException      if the specified collection is null
      */
-    public boolean addAll(int index, Collection<? extends E> c) {
+    public boolean addAll(int index, Collection<? extends E> c) {// добавление других объектов в определенную позицию
         checkPositionIndex(index);
 
         Object[] a = c.toArray();
@@ -387,7 +334,7 @@ public class MyLinkedList<E>
         if (numNew == 0)
             return false;
 
-        java.util.LinkedList.Node<E> pred, succ;
+        Node<E> pred, succ;
         if (index == size) {
             succ = null;
             pred = last;
@@ -398,7 +345,7 @@ public class MyLinkedList<E>
 
         for (Object o : a) {
             @SuppressWarnings("unchecked") E e = (E) o;
-            java.util.LinkedList.Node<E> newNode = new java.util.LinkedList.Node<>(pred, e, null);
+            Node<E> newNode = new Node<>(pred, e, null);
             if (pred == null)
                 first = newNode;
             else
@@ -422,13 +369,13 @@ public class MyLinkedList<E>
      * Removes all of the elements from this list.
      * The list will be empty after this call returns.
      */
-    public void clear() {
+    public void clear() { // обнуление листа
         // Clearing all of the links between nodes is "unnecessary", but:
         // - helps a generational GC if the discarded nodes inhabit
         //   more than one generation
         // - is sure to free memory even if there is a reachable Iterator
-        for (java.util.LinkedList.Node<E> x = first; x != null; ) {
-            java.util.LinkedList.Node<E> next = x.next;
+        for (Node<E> x = first; x != null; ) {
+            Node<E> next = x.next;
             x.item = null;
             x.next = null;
             x.prev = null;
@@ -449,7 +396,7 @@ public class MyLinkedList<E>
      * @return the element at the specified position in this list
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    public E get(int index) {
+    public E get(int index) { // возвращаем элемент в указанной позиции
         checkElementIndex(index);
         return node(index).item;
     }
@@ -463,9 +410,9 @@ public class MyLinkedList<E>
      * @return the element previously at the specified position
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    public E set(int index, E element) {
+    public E set(int index, E element) { // заменим элемент в указанной позиции и вернем старый
         checkElementIndex(index);
-        java.util.LinkedList.Node<E> x = node(index);
+        Node<E> x = node(index);
         E oldVal = x.item;
         x.item = element;
         return oldVal;
@@ -480,7 +427,7 @@ public class MyLinkedList<E>
      * @param element element to be inserted
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    public void add(int index, E element) {
+    public void add(int index, E element) {// вставим элемент в нужныю позицию
         checkPositionIndex(index);
 
         if (index == size)
@@ -498,7 +445,7 @@ public class MyLinkedList<E>
      * @return the element previously at the specified position
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    public E remove(int index) {
+    public E remove(int index) { // удаление элемента в указанной позиции
         checkElementIndex(index);
         return unlink(node(index));
     }
@@ -506,7 +453,7 @@ public class MyLinkedList<E>
     /**
      * Tells if the argument is the index of an existing element.
      */
-    private boolean isElementIndex(int index) {
+    private boolean isElementIndex(int index) { // проверим что индекс лежит в границах листа
         return index >= 0 && index < size;
     }
 
@@ -514,7 +461,7 @@ public class MyLinkedList<E>
      * Tells if the argument is the index of a valid position for an
      * iterator or an add operation.
      */
-    private boolean isPositionIndex(int index) {
+    private boolean isPositionIndex(int index) {// проверим что индекс лежит в границах листа
         return index >= 0 && index <= size;
     }
 
@@ -525,14 +472,14 @@ public class MyLinkedList<E>
      */
     private String outOfBoundsMsg(int index) {
         return "Index: " + index + ", Size: " + size;
-    }
+    } // конструктор описания исключения
 
-    private void checkElementIndex(int index) {
+    private void checkElementIndex(int index) { // проверим что индекс лежит в границах листа или выбросим исключение
         if (!isElementIndex(index))
             throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
     }
 
-    private void checkPositionIndex(int index) {
+    private void checkPositionIndex(int index) { // проверим что индекс лежит в границах листа или выбросим исключение
         if (!isPositionIndex(index))
             throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
     }
@@ -540,16 +487,16 @@ public class MyLinkedList<E>
     /**
      * Returns the (non-null) Node at the specified element index.
      */
-    java.util.LinkedList.Node<E> node(int index) {
+    Node<E> node(int index) {
         // assert isElementIndex(index);
 
         if (index < (size >> 1)) {
-            java.util.LinkedList.Node<E> x = first;
+            Node<E> x = first;
             for (int i = 0; i < index; i++)
                 x = x.next;
             return x;
         } else {
-            java.util.LinkedList.Node<E> x = last;
+            Node<E> x = last;
             for (int i = size - 1; i > index; i--)
                 x = x.prev;
             return x;
@@ -569,16 +516,16 @@ public class MyLinkedList<E>
      * @return the index of the first occurrence of the specified element in
      * this list, or -1 if this list does not contain the element
      */
-    public int indexOf(Object o) {
+    public int indexOf(Object o) { // вернем первый индес искомого элемента или -1 если его нет
         int index = 0;
         if (o == null) {
-            for (java.util.LinkedList.Node<E> x = first; x != null; x = x.next) {
-                if (x.item == null)
+            for (Node<E> x = first; x != null; x = x.next) {
+                if (x.item == null) // отдельная проверка для null
                     return index;
                 index++;
             }
         } else {
-            for (java.util.LinkedList.Node<E> x = first; x != null; x = x.next) {
+            for (Node<E> x = first; x != null; x = x.next) { // отдельная проверка для объектов
                 if (o.equals(x.item))
                     return index;
                 index++;
@@ -598,18 +545,18 @@ public class MyLinkedList<E>
      * @return the index of the last occurrence of the specified element in
      * this list, or -1 if this list does not contain the element
      */
-    public int lastIndexOf(Object o) {
+    public int lastIndexOf(Object o) { // вернем последний индес искомого элемента или -1 если его нет
         int index = size;
         if (o == null) {
-            for (java.util.LinkedList.Node<E> x = last; x != null; x = x.prev) {
+            for (Node<E> x = last; x != null; x = x.prev) {
                 index--;
-                if (x.item == null)
+                if (x.item == null)  // отдельная проверка для null
                     return index;
             }
         } else {
-            for (java.util.LinkedList.Node<E> x = last; x != null; x = x.prev) {
+            for (Node<E> x = last; x != null; x = x.prev) {
                 index--;
-                if (o.equals(x.item))
+                if (o.equals(x.item)) // отдельная проверка для объектов
                     return index;
             }
         }
@@ -624,8 +571,8 @@ public class MyLinkedList<E>
      * @return the head of this list, or {@code null} if this list is empty
      * @since 1.5
      */
-    public E peek() {
-        final java.util.LinkedList.Node<E> f = first;
+    public E peek() { // вернем первый элемент или null
+        final Node<E> f = first;
         return (f == null) ? null : f.item;
     }
 
@@ -638,7 +585,7 @@ public class MyLinkedList<E>
      */
     public E element() {
         return getFirst();
-    }
+    } // вернем первый элемент или исключение
 
     /**
      * Retrieves and removes the head (first element) of this list.
@@ -646,8 +593,8 @@ public class MyLinkedList<E>
      * @return the head of this list, or {@code null} if this list is empty
      * @since 1.5
      */
-    public E poll() {
-        final java.util.LinkedList.Node<E> f = first;
+    public E poll() { // удалим и вернем первый элемент, или вернем null
+        final Node<E> f = first;
         return (f == null) ? null : unlinkFirst(f);
     }
 
@@ -660,7 +607,7 @@ public class MyLinkedList<E>
      */
     public E remove() {
         return removeFirst();
-    }
+    } // удалим и вернем первый элемент, или исключение
 
     /**
      * Adds the specified element as the tail (last element) of this list.
@@ -671,7 +618,7 @@ public class MyLinkedList<E>
      */
     public boolean offer(E e) {
         return add(e);
-    }
+    } // добавим как последний элемент
 
     // Deque operations
 
@@ -682,7 +629,7 @@ public class MyLinkedList<E>
      * @return {@code true} (as specified by {@link Deque#offerFirst})
      * @since 1.6
      */
-    public boolean offerFirst(E e) {
+    public boolean offerFirst(E e) { // добавим и установим первым
         addFirst(e);
         return true;
     }
@@ -694,7 +641,7 @@ public class MyLinkedList<E>
      * @return {@code true} (as specified by {@link Deque#offerLast})
      * @since 1.6
      */
-    public boolean offerLast(E e) {
+    public boolean offerLast(E e) { // добавим и установим последним
         addLast(e);
         return true;
     }
@@ -707,8 +654,8 @@ public class MyLinkedList<E>
      * if this list is empty
      * @since 1.6
      */
-    public E peekFirst() {
-        final java.util.LinkedList.Node<E> f = first;
+    public E peekFirst() { // получим первый элемент
+        final Node<E> f = first;
         return (f == null) ? null : f.item;
     }
 
@@ -720,8 +667,8 @@ public class MyLinkedList<E>
      * if this list is empty
      * @since 1.6
      */
-    public E peekLast() {
-        final java.util.LinkedList.Node<E> l = last;
+    public E peekLast() {// получим последний элемент
+        final Node<E> l = last;
         return (l == null) ? null : l.item;
     }
 
@@ -733,8 +680,8 @@ public class MyLinkedList<E>
      * this list is empty
      * @since 1.6
      */
-    public E pollFirst() {
-        final java.util.LinkedList.Node<E> f = first;
+    public E pollFirst() { // получим и удалим первый элемент
+        final Node<E> f = first;
         return (f == null) ? null : unlinkFirst(f);
     }
 
@@ -746,8 +693,8 @@ public class MyLinkedList<E>
      * this list is empty
      * @since 1.6
      */
-    public E pollLast() {
-        final java.util.LinkedList.Node<E> l = last;
+    public E pollLast() { // получим и удалим последний элемент
+        final Node<E> l = last;
         return (l == null) ? null : unlinkLast(l);
     }
 
@@ -762,7 +709,7 @@ public class MyLinkedList<E>
      */
     public void push(E e) {
         addFirst(e);
-    }
+    }// добавим в качестве первого элемента
 
     /**
      * Pops an element from the stack represented by this list.  In other
@@ -777,7 +724,7 @@ public class MyLinkedList<E>
      */
     public E pop() {
         return removeFirst();
-    }
+    }// удалим и вернем первый элемент
 
     /**
      * Removes the first occurrence of the specified element in this
@@ -790,7 +737,7 @@ public class MyLinkedList<E>
      */
     public boolean removeFirstOccurrence(Object o) {
         return remove(o);
-    }
+    }// удалим элемент с первым вхождением
 
     /**
      * Removes the last occurrence of the specified element in this
@@ -801,16 +748,16 @@ public class MyLinkedList<E>
      * @return {@code true} if the list contained the specified element
      * @since 1.6
      */
-    public boolean removeLastOccurrence(Object o) {
+    public boolean removeLastOccurrence(Object o) { // удалим элемент с последним вхождением
         if (o == null) {
-            for (java.util.LinkedList.Node<E> x = last; x != null; x = x.prev) {
+            for (Node<E> x = last; x != null; x = x.prev) {
                 if (x.item == null) {
                     unlink(x);
                     return true;
                 }
             }
         } else {
-            for (java.util.LinkedList.Node<E> x = last; x != null; x = x.prev) {
+            for (Node<E> x = last; x != null; x = x.prev) {
                 if (o.equals(x.item)) {
                     unlink(x);
                     return true;
@@ -843,12 +790,12 @@ public class MyLinkedList<E>
      */
     public ListIterator<E> listIterator(int index) {
         checkPositionIndex(index);
-        return new java.util.LinkedList.ListItr(index);
+        return new ListItr(index);
     }
 
     private class ListItr implements ListIterator<E> {
-        private java.util.LinkedList.Node<E> lastReturned;
-        private java.util.LinkedList.Node<E> next;
+        private Node<E> lastReturned;
+        private Node<E> next;
         private int nextIndex;
         private int expectedModCount = modCount;
 
@@ -900,7 +847,7 @@ public class MyLinkedList<E>
             if (lastReturned == null)
                 throw new IllegalStateException();
 
-            java.util.LinkedList.Node<E> lastNext = lastReturned.next;
+            Node<E> lastNext = lastReturned.next;
             unlink(lastReturned);
             if (next == lastReturned)
                 next = lastNext;
@@ -945,12 +892,12 @@ public class MyLinkedList<E>
         }
     }
 
-    private static class Node<E> {
+    private static class Node<E> {// класс узел, содержит значение, предыдущий, последующий
         E item;
-        java.util.LinkedList.Node<E> next;
-        java.util.LinkedList.Node<E> prev;
+        Node<E> next;
+        Node<E> prev;
 
-        Node(java.util.LinkedList.Node<E> prev, E element, java.util.LinkedList.Node<E> next) {
+        Node(Node<E> prev, E element, Node<E> next) {
             this.item = element;
             this.next = next;
             this.prev = prev;
@@ -961,14 +908,14 @@ public class MyLinkedList<E>
      * @since 1.6
      */
     public Iterator<E> descendingIterator() {
-        return new java.util.LinkedList.DescendingIterator();
+        return new DescendingIterator();
     }
 
     /**
      * Adapter to provide descending iterators via ListItr.previous
      */
     private class DescendingIterator implements Iterator<E> {
-        private final java.util.LinkedList.ListItr itr = new java.util.LinkedList.ListItr(size());
+        private final ListItr itr = new ListItr(size());
 
         public boolean hasNext() {
             return itr.hasPrevious();
@@ -984,22 +931,22 @@ public class MyLinkedList<E>
     }
 
     @SuppressWarnings("unchecked")
-    private java.util.LinkedList<E> superClone() {
+    private MyLinkedList<E> superClone() {
         try {
-            return (java.util.LinkedList<E>) super.clone();
+            return (MyLinkedList<E>) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new InternalError(e);
         }
     }
 
     /**
-     * Returns a shallow copy of this {@code LinkedList}. (The elements
+     * Returns a shallow copy of this {@code MyLinkedList}. (The elements
      * themselves are not cloned.)
      *
-     * @return a shallow copy of this {@code LinkedList} instance
+     * @return a shallow copy of this {@code MyLinkedList} instance
      */
     public Object clone() {
-        java.util.LinkedList<E> clone = superClone();
+        MyLinkedList<E> clone = superClone();
 
         // Put clone into "virgin" state
         clone.first = clone.last = null;
@@ -1007,7 +954,7 @@ public class MyLinkedList<E>
         clone.modCount = 0;
 
         // Initialize clone with our elements
-        for (java.util.LinkedList.Node<E> x = first; x != null; x = x.next)
+        for (Node<E> x = first; x != null; x = x.next)
             clone.add(x.item);
 
         return clone;
@@ -1030,7 +977,7 @@ public class MyLinkedList<E>
     public Object[] toArray() {
         Object[] result = new Object[size];
         int i = 0;
-        for (java.util.LinkedList.Node<E> x = first; x != null; x = x.next)
+        for (Node<E> x = first; x != null; x = x.next)
             result[i++] = x.item;
         return result;
     }
@@ -1080,7 +1027,7 @@ public class MyLinkedList<E>
                     a.getClass().getComponentType(), size);
         int i = 0;
         Object[] result = a;
-        for (java.util.LinkedList.Node<E> x = first; x != null; x = x.next)
+        for (Node<E> x = first; x != null; x = x.next)
             result[i++] = x.item;
 
         if (a.length > size)
@@ -1110,7 +1057,7 @@ public class MyLinkedList<E>
         s.writeInt(size);
 
         // Write out all elements in the proper order.
-        for (java.util.LinkedList.Node<E> x = first; x != null; x = x.next)
+        for (Node<E> x = first; x != null; x = x.next)
             s.writeObject(x.item);
     }
 
@@ -1149,7 +1096,7 @@ public class MyLinkedList<E>
      */
     @Override
     public Spliterator<E> spliterator() {
-        return new java.util.LinkedList.LLSpliterator<>(this, -1, 0);
+        return new LLSpliterator<>(this, -1, 0);
     }
 
     /**
@@ -1158,13 +1105,13 @@ public class MyLinkedList<E>
     static final class LLSpliterator<E> implements Spliterator<E> {
         static final int BATCH_UNIT = 1 << 10;  // batch array size increment
         static final int MAX_BATCH = 1 << 25;  // max batch array size;
-        final java.util.LinkedList<E> list; // null OK unless traversed
-        java.util.LinkedList.Node<E> current;      // current node; null until initialized
+        final MyLinkedList<E> list; // null OK unless traversed
+        Node<E> current;      // current node; null until initialized
         int est;              // size estimate; -1 until first needed
         int expectedModCount; // initialized when est set
         int batch;            // batch size for splits
 
-        LLSpliterator(java.util.LinkedList<E> list, int est, int expectedModCount) {
+        LLSpliterator(MyLinkedList<E> list, int est, int expectedModCount) {
             this.list = list;
             this.est = est;
             this.expectedModCount = expectedModCount;
@@ -1172,7 +1119,7 @@ public class MyLinkedList<E>
 
         final int getEst() {
             int s; // force initialization
-            final java.util.LinkedList<E> lst;
+            final MyLinkedList<E> lst;
             if ((s = est) < 0) {
                 if ((lst = list) == null)
                     s = est = 0;
@@ -1190,7 +1137,7 @@ public class MyLinkedList<E>
         }
 
         public Spliterator<E> trySplit() {
-            java.util.LinkedList.Node<E> p;
+            Node<E> p;
             int s = getEst();
             if (s > 1 && (p = current) != null) {
                 int n = batch + BATCH_UNIT;
@@ -1212,7 +1159,7 @@ public class MyLinkedList<E>
         }
 
         public void forEachRemaining(Consumer<? super E> action) {
-            java.util.LinkedList.Node<E> p;
+            Node<E> p;
             int n;
             if (action == null) throw new NullPointerException();
             if ((n = getEst()) > 0 && (p = current) != null) {
@@ -1229,7 +1176,7 @@ public class MyLinkedList<E>
         }
 
         public boolean tryAdvance(Consumer<? super E> action) {
-            java.util.LinkedList.Node<E> p;
+            Node<E> p;
             if (action == null) throw new NullPointerException();
             if (getEst() > 0 && (p = current) != null) {
                 --est;

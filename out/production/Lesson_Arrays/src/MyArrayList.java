@@ -6,81 +6,6 @@ import java.util.function.UnaryOperator;
 import jdk.internal.access.SharedSecrets;
 import jdk.internal.util.ArraysSupport;
 
-
-/**
- * Resizable-array implementation of the {@code List} interface.  Implements
- * all optional list operations, and permits all elements, including
- * {@code null}.  In addition to implementing the {@code List} interface,
- * this class provides methods to manipulate the size of the array that is
- * used internally to store the list.  (This class is roughly equivalent to
- * {@code Vector}, except that it is unsynchronized.)
- *
- * <p>The {@code size}, {@code isEmpty}, {@code get}, {@code set},
- * {@code iterator}, and {@code listIterator} operations run in constant
- * time.  The {@code add} operation runs in <i>amortized constant time</i>,
- * that is, adding n elements requires O(n) time.  All of the other operations
- * run in linear time (roughly speaking).  The constant factor is low compared
- * to that for the {@code LinkedList} implementation.
- *
- * <p>Each {@code ArrayList} instance has a <i>capacity</i>.  The capacity is
- * the size of the array used to store the elements in the list.  It is always
- * at least as large as the list size.  As elements are added to an ArrayList,
- * its capacity grows automatically.  The details of the growth policy are not
- * specified beyond the fact that adding an element has constant amortized
- * time cost.
- *
- * <p>An application can increase the capacity of an {@code ArrayList} instance
- * before adding a large number of elements using the {@code ensureCapacity}
- * operation.  This may reduce the amount of incremental reallocation.
- *
- * <p><strong>Note that this implementation is not synchronized.</strong>
- * If multiple threads access an {@code ArrayList} instance concurrently,
- * and at least one of the threads modifies the list structurally, it
- * <i>must</i> be synchronized externally.  (A structural modification is
- * any operation that adds or deletes one or more elements, or explicitly
- * resizes the backing array; merely setting the value of an element is not
- * a structural modification.)  This is typically accomplished by
- * synchronizing on some object that naturally encapsulates the list.
- * <p>
- * If no such object exists, the list should be "wrapped" using the
- * <p>
- * method.  This is best done at creation time, to prevent accidental
- * unsynchronized access to the list:<pre>
- *   List list = Collections.synchronizedList(new ArrayList(...));</pre>
- *
- * <p id="fail-fast">
- * The iterators returned by this class's {@link #iterator() iterator} and
- * {@link #listIterator(int) listIterator} methods are <em>fail-fast</em>:
- * if the list is structurally modified at any time after the iterator is
- * created, in any way except through the iterator's own
- * {@link ListIterator#remove() remove} or
- * {@link ListIterator#add(Object) add} methods, the iterator will throw a
- * {@link ConcurrentModificationException}.  Thus, in the face of
- * concurrent modification, the iterator fails quickly and cleanly, rather
- * than risking arbitrary, non-deterministic behavior at an undetermined
- * time in the future.
- *
- * <p>Note that the fail-fast behavior of an iterator cannot be guaranteed
- * as it is, generally speaking, impossible to make any hard guarantees in the
- * presence of unsynchronized concurrent modification.  Fail-fast iterators
- * throw {@code ConcurrentModificationException} on a best-effort basis.
- * Therefore, it would be wrong to write a program that depended on this
- * exception for its correctness:  <i>the fail-fast behavior of iterators
- * should be used only to detect bugs.</i>
- *
- * <p>This class is a member of the
- * <a href="{@docRoot}/java.base/java/util/package-summary.html#CollectionsFramework">
- * Java Collections Framework</a>.
- *
- * @param <E> the type of elements in this list
- * @author Josh Bloch
- * @author Neal Gafter
- * @see Collection
- * @see List
- * @see LinkedList
- * @see Vector
- * @since 1.2
- */
 public class MyArrayList<E> extends AbstractList<E>
         implements List<E>, RandomAccess, Cloneable, java.io.Serializable {
     @java.io.Serial
@@ -89,19 +14,19 @@ public class MyArrayList<E> extends AbstractList<E>
     /**
      * Default initial capacity.
      */
-    private static final int DEFAULT_CAPACITY = 3; // Зачем выделять возможно ненужную память? Пусть будет 3.
+    private static final int DEFAULT_CAPACITY = 3; // Зачем выделять возможно ненужную память? Поставил поменьше 3, вместо 10 )).
 
     /**
      * Shared empty array instance used for empty instances.
      */
-    private static final Object[] EMPTY_ELEMENTDATA = {};
+    private static final Object[] EMPTY_ELEMENTDATA = {}; // Создается новый пустой объект
 
     /**
      * Shared empty array instance used for default sized empty instances. We
      * distinguish this from EMPTY_ELEMENTDATA to know how much to inflate when
      * first element is added.
      */
-    private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+    private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {}; // Создается новый пустой объект
 
     /**
      * The array buffer into which the elements of the ArrayList are stored.
@@ -116,7 +41,7 @@ public class MyArrayList<E> extends AbstractList<E>
      *
      * @serial
      */
-    private int size;
+    private int size; // свойство с размером массива
 
     /**
      * Constructs an empty list with the specified initial capacity.
@@ -125,7 +50,7 @@ public class MyArrayList<E> extends AbstractList<E>
      * @throws IllegalArgumentException if the specified initial capacity
      *                                  is negative
      */
-    public MyArrayList(int initialCapacity) {
+    public MyArrayList(int initialCapacity) { // создаем массив, или определеного размера, или пустой, или ошибка
         if (initialCapacity > 0) {
             this.elementData = new Object[initialCapacity];
         } else if (initialCapacity == 0) {
@@ -141,7 +66,7 @@ public class MyArrayList<E> extends AbstractList<E>
      */
     public MyArrayList() {
         this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
-    }
+    } // перегруженная функция создания без параметров
 
     /**
      * Constructs a list containing the elements of the specified
@@ -151,17 +76,17 @@ public class MyArrayList<E> extends AbstractList<E>
      * @param c the collection whose elements are to be placed into this list
      * @throws NullPointerException if the specified collection is null
      */
-    public MyArrayList(Collection<? extends E> c) {
+    public MyArrayList(Collection<? extends E> c) { // перегруженная функция для создания из коллекции
         Object[] a = c.toArray();
         if ((size = a.length) != 0) {
-            if (c.getClass() == MyArrayList.class) {
+            if (c.getClass() == MyArrayList.class) { // если одного класса, то просто присвоим
                 elementData = a;
             } else {
-                elementData = Arrays.copyOf(a, size, Object[].class);
+                elementData = Arrays.copyOf(a, size, Object[].class); // если разных классов, то скопируем
             }
         } else {
             // replace with empty array.
-            elementData = EMPTY_ELEMENTDATA;
+            elementData = EMPTY_ELEMENTDATA; // если что то иное - создадим пустой
         }
     }
 
@@ -171,11 +96,11 @@ public class MyArrayList<E> extends AbstractList<E>
      * the storage of an {@code ArrayList} instance.
      */
     public void trimToSize() {
-        modCount++;
-        if (size < elementData.length) {
+        modCount++; // количество изменений ++
+        if (size < elementData.length) { // если текущий размер меньше значений в массиве
             elementData = (size == 0)
-                    ? EMPTY_ELEMENTDATA
-                    : Arrays.copyOf(elementData, size);
+                    ? EMPTY_ELEMENTDATA // если 0, вернем пустой
+                    : Arrays.copyOf(elementData, size); // иначе вернем в elementData сколько содержится
         }
     }
 
@@ -186,12 +111,10 @@ public class MyArrayList<E> extends AbstractList<E>
      *
      * @param minCapacity the desired minimum capacity
      */
-    public void ensureCapacity(int minCapacity) {
-        if (minCapacity > elementData.length
-                && !(elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA
-                && minCapacity <= DEFAULT_CAPACITY)) {
-            modCount++;
-            grow(minCapacity);
+    public void ensureCapacity(int minCapacity) { // увеличим до minCapacity
+        if (minCapacity > elementData.length && !(elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA && minCapacity <= DEFAULT_CAPACITY)) {
+            modCount++; // количество изменений ++
+            grow(minCapacity); // если нужно, увеличим
         }
     }
 
@@ -206,17 +129,17 @@ public class MyArrayList<E> extends AbstractList<E>
         int oldCapacity = elementData.length;
         if (oldCapacity > 0 || elementData != DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
             int newCapacity = ArraysSupport.newLength(oldCapacity,
-                    minCapacity - oldCapacity, /* minimum growth */
-                    oldCapacity >> 1           /* preferred growth */);
-            return elementData = Arrays.copyOf(elementData, newCapacity);
+                    minCapacity - oldCapacity, /* minimum growth */ // хочем увеличить на эту велечину
+                    oldCapacity >> 1           /* preferred growth */); // но, если можно, просим увеличить в 2 раза
+            return elementData = Arrays.copyOf(elementData, newCapacity); // возвращаем увеличенный массив
         } else {
-            return elementData = new Object[Math.max(DEFAULT_CAPACITY, minCapacity)];
+            return elementData = new Object[Math.max(DEFAULT_CAPACITY, minCapacity)];// а если массив был пустой - вернем что больше - размер по умолчанию или запрашиваемый размер
         }
     }
 
     private Object[] grow() {
         return grow(size + 1);
-    }
+    }// функция без параметров, вернем массив увеличенный на 1
 
     /**
      * Returns the number of elements in this list.
@@ -225,7 +148,7 @@ public class MyArrayList<E> extends AbstractList<E>
      */
     public int size() {
         return size;
-    }
+    }// был size приватный, стал публичный
 
     /**
      * Returns {@code true} if this list contains no elements.
@@ -234,7 +157,7 @@ public class MyArrayList<E> extends AbstractList<E>
      */
     public boolean isEmpty() {
         return size == 0;
-    }
+    }// Если размер равен 0, то вернем true
 
     /**
      * Returns {@code true} if this list contains the specified element.
@@ -247,7 +170,7 @@ public class MyArrayList<E> extends AbstractList<E>
      */
     public boolean contains(Object o) { // Странно на мой взгляд сделано. indexOf возвращает -1, если объект не найден. Я бы записал: return indexOf(o) != -1
         return indexOf(o) >= 0;
-    }
+    } // Просто используем indexOf с условием
 
     /**
      * Returns the index of the first occurrence of the specified element
@@ -256,11 +179,12 @@ public class MyArrayList<E> extends AbstractList<E>
      * {@code Objects.equals(o, get(i))},
      * or -1 if there is no such index.
      */
-    public int indexOf(Object o) {
-        return indexOfRange(o, 0, size);
+    //public int indexOf(Object o) { return indexOfRange(o, 0, size);    } // было
+    public int indexOf(Object o) { // Это типа моя реализация
+        return indexOf(o);
     }
 
-    int indexOfRange(Object o, int start, int end) {
+    int indexOfRange(Object o, int start, int end) { // разные реализации - для null и не для null
         Object[] es = elementData;
         if (o == null) {
             for (int i = start; i < end; i++) {
@@ -289,7 +213,7 @@ public class MyArrayList<E> extends AbstractList<E>
         return lastIndexOfRange(o, 0, size);
     }
 
-    int lastIndexOfRange(Object o, int start, int end) {
+    int lastIndexOfRange(Object o, int start, int end) {// разные реализации - для null и не для null. проходим цикл с конца
         Object[] es = elementData;
         if (o == null) {
             for (int i = end - 1; i >= start; i--) {
@@ -315,7 +239,7 @@ public class MyArrayList<E> extends AbstractList<E>
      */
     public Object clone() {
         try {
-            MyArrayList<?> v = (MyArrayList<?>) super.clone();
+            MyArrayList<?> v = (MyArrayList<?>) super.clone();// копия массива
             v.elementData = Arrays.copyOf(elementData, size);
             v.modCount = 0;
             return v;
@@ -341,7 +265,7 @@ public class MyArrayList<E> extends AbstractList<E>
      */
     public Object[] toArray() {
         return Arrays.copyOf(elementData, size);
-    }
+    } // копия массива
 
     /**
      * Returns an array containing all of the elements in this list in proper
@@ -383,12 +307,12 @@ public class MyArrayList<E> extends AbstractList<E>
     @SuppressWarnings("unchecked")
     E elementData(int index) {
         return (E) elementData[index];
-    }
+    }// возвращает элемент по индексу
 
     @SuppressWarnings("unchecked")
     static <E> E elementAt(Object[] es, int index) {
         return (E) es[index];
-    }
+    } // возвращает элемент по индексу
 
     /**
      * Returns the element at the specified position in this list.
@@ -397,8 +321,8 @@ public class MyArrayList<E> extends AbstractList<E>
      * @return the element at the specified position in this list
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    public E get(int index) {
-        Objects.checkIndex(index, size);
+    public E get(int index) { // возвращает элемент по индексу с проверкой на наличие
+        Objects.checkIndex(index, size); // не пойму, для чего эта строчка. наверно чтобы при необходимости Exception выбросить?
         return elementData(index);
     }
 
@@ -412,10 +336,10 @@ public class MyArrayList<E> extends AbstractList<E>
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public E set(int index, E element) {
-        Objects.checkIndex(index, size);
-        E oldValue = elementData(index);
-        elementData[index] = element;
-        return oldValue;
+        Objects.checkIndex(index, size);// проверим на наличие, если что выбросим исключение
+        E oldValue = elementData(index); // сохраним старое значение
+        elementData[index] = element; // заменим
+        return oldValue; // вернем старое значение
     }
 
     /**
@@ -423,22 +347,22 @@ public class MyArrayList<E> extends AbstractList<E>
      * bytecode size under 35 (the -XX:MaxInlineSize default value),
      * which helps when add(E) is called in a C1-compiled loop.
      */
-    private void add(E e, Object[] elementData, int s) {
+    private void add(E e, Object[] elementData, int s) {// увеличение размера на 1 и добавление в конец
         if (s == elementData.length)
             elementData = grow();
         elementData[s] = e;
-        size = s + 1;
+        size = ++s;
     }
 
     /**
      * Appends the specified element to the end of this list.
      *
-     * @param e element to be appended to this list
+     * @param element element to be appended to this list
      * @return {@code true} (as specified by {@link Collection#add})
      */
-    public boolean add(E e) {
+    public boolean add(E element) {// добавление элемента в конец
         modCount++;
-        add(e, elementData, size);
+        add(element, elementData, size);
         return true;
     }
 
@@ -451,7 +375,7 @@ public class MyArrayList<E> extends AbstractList<E>
      * @param element element to be inserted
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    public void add(int index, E element) {
+    public void add(int index, E element) {// увеличим размер на 1, сдвинем массив и вставим символ в нужную позицию
         rangeCheckForAdd(index);
         modCount++;
         final int s;
@@ -474,7 +398,7 @@ public class MyArrayList<E> extends AbstractList<E>
      * @return the element that was removed from the list
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    public E remove(int index) {
+    public E remove(int index) {// проверим индекс, удалим из массива, вернем удаленное значение
         Objects.checkIndex(index, size);
         final Object[] es = elementData;
 
@@ -487,7 +411,7 @@ public class MyArrayList<E> extends AbstractList<E>
     /**
      * {@inheritDoc}
      */
-    public boolean equals(Object o) {
+    public boolean equals(Object o) { // сравнение на уровне объектов
         if (o == this) {
             return true;
         }
@@ -507,7 +431,7 @@ public class MyArrayList<E> extends AbstractList<E>
         return equal;
     }
 
-    boolean equalsRange(List<?> other, int from, int to) {
+    boolean equalsRange(List<?> other, int from, int to) { // сравнение участков
         final Object[] es = elementData;
         if (to > es.length) {
             throw new ConcurrentModificationException();
@@ -521,7 +445,7 @@ public class MyArrayList<E> extends AbstractList<E>
         return !oit.hasNext();
     }
 
-    private boolean equalsArrayList(MyArrayList<?> other) {
+    private boolean equalsArrayList(MyArrayList<?> other) {// сравнение по содержимому
         final int otherModCount = other.modCount;
         final int s = size;
         boolean equal;
@@ -542,7 +466,7 @@ public class MyArrayList<E> extends AbstractList<E>
         return equal;
     }
 
-    private void checkForComodification(final int expectedModCount) {
+    private void checkForComodification(final int expectedModCount) {// выбросим исключение если изменили объект не мы
         if (modCount != expectedModCount) {
             throw new ConcurrentModificationException();
         }
@@ -551,14 +475,14 @@ public class MyArrayList<E> extends AbstractList<E>
     /**
      * {@inheritDoc}
      */
-    public int hashCode() {
+    public int hashCode() {// сгенерируем хэш для массива
         int expectedModCount = modCount;
         int hash = hashCodeRange(0, size);
         checkForComodification(expectedModCount);
         return hash;
     }
 
-    int hashCodeRange(int from, int to) {
+    int hashCodeRange(int from, int to) {// сгенерируем хэш для части массива
         final Object[] es = elementData;
         if (to > es.length) {
             throw new ConcurrentModificationException();
@@ -590,18 +514,18 @@ public class MyArrayList<E> extends AbstractList<E>
         int i = 0;
         found:
         {
-            if (o == null) {
+            if (o == null) {// null ищем отдельно
                 for (; i < size; i++)
                     if (es[i] == null)
                         break found;
             } else {
-                for (; i < size; i++)
+                for (; i < size; i++) // ищем не null отдельно
                     if (o.equals(es[i]))
                         break found;
             }
             return false;
         }
-        fastRemove(es, i);
+        fastRemove(es, i);// удаляем
         return true;
     }
 
@@ -609,7 +533,7 @@ public class MyArrayList<E> extends AbstractList<E>
      * Private remove method that skips bounds checking and does not
      * return the value removed.
      */
-    private void fastRemove(Object[] es, int i) {
+    private void fastRemove(Object[] es, int i) { // внутренняя функция удаления
         modCount++;
         final int newSize;
         if ((newSize = size - 1) > i)
@@ -644,16 +568,16 @@ public class MyArrayList<E> extends AbstractList<E>
      * @throws NullPointerException if the specified collection is null
      */
     public boolean addAll(Collection<? extends E> c) {
-        Object[] a = c.toArray();
+        Object[] a = c.toArray();// превратим в массив
         modCount++;
-        int numNew = a.length;
+        int numNew = a.length; // если размер 0 - вернем false
         if (numNew == 0)
             return false;
         Object[] elementData;
         final int s;
-        if (numNew > (elementData = this.elementData).length - (s = size))
+        if (numNew > (elementData = this.elementData).length - (s = size))// при необходимости изменим размер массива
             elementData = grow(s + numNew);
-        System.arraycopy(a, 0, elementData, s, numNew);
+        System.arraycopy(a, 0, elementData, s, numNew);// и скопируем
         size = s + numNew;
         return true;
     }
@@ -679,19 +603,19 @@ public class MyArrayList<E> extends AbstractList<E>
         Object[] a = c.toArray();
         modCount++;
         int numNew = a.length;
-        if (numNew == 0)
+        if (numNew == 0) // превратим в массив, если размер 0, вернем null
             return false;
         Object[] elementData;
         final int s;
-        if (numNew > (elementData = this.elementData).length - (s = size))
+        if (numNew > (elementData = this.elementData).length - (s = size)) // изменим размер массива
             elementData = grow(s + numNew);
 
         int numMoved = s - index;
         if (numMoved > 0)
-            System.arraycopy(elementData, index,
+            System.arraycopy(elementData, index,// скопируем старые значения
                     elementData, index + numNew,
                     numMoved);
-        System.arraycopy(a, 0, elementData, index, numNew);
+        System.arraycopy(a, 0, elementData, index, numNew); // вставим новые значения
         size = s + numNew;
         return true;
     }
@@ -709,19 +633,19 @@ public class MyArrayList<E> extends AbstractList<E>
      *                                   toIndex > size() ||
      *                                   toIndex < fromIndex})
      */
-    protected void removeRange(int fromIndex, int toIndex) {
+    protected void removeRange(int fromIndex, int toIndex) {// проверим что можно удалить, если нет - выбрости Експешен
         if (fromIndex > toIndex) {
             throw new IndexOutOfBoundsException(
                     outOfBoundsMsg(fromIndex, toIndex));
         }
         modCount++;
-        shiftTailOverGap(elementData, fromIndex, toIndex);
+        shiftTailOverGap(elementData, fromIndex, toIndex); // удалим другой функцией
     }
 
     /**
      * Erases the gap from lo to hi, by sliding down following elements.
      */
-    private void shiftTailOverGap(Object[] es, int lo, int hi) {
+    private void shiftTailOverGap(Object[] es, int lo, int hi) { // переместим, заполним оставшееся null
         System.arraycopy(es, hi, es, lo, size - hi);
         for (int to = size, i = (size -= hi - lo); i < to; i++)
             es[i] = null;
@@ -730,7 +654,7 @@ public class MyArrayList<E> extends AbstractList<E>
     /**
      * A version of rangeCheck used by add and addAll.
      */
-    private void rangeCheckForAdd(int index) {
+    private void rangeCheckForAdd(int index) {// проверка индекса
         if (index > size || index < 0)
             throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
     }
@@ -742,12 +666,12 @@ public class MyArrayList<E> extends AbstractList<E>
      */
     private String outOfBoundsMsg(int index) {
         return "Index: " + index + ", Size: " + size;
-    }
+    } // функция возврашающая строку при помощи анонимной функции
 
     /**
      * A version used in checking (fromIndex > toIndex) condition
      */
-    private static String outOfBoundsMsg(int fromIndex, int toIndex) {
+    private static String outOfBoundsMsg(int fromIndex, int toIndex) { // функция возврашающая строку при помощи анонимной функции
         return "From Index: " + fromIndex + " > To Index: " + toIndex;
     }
 
@@ -797,15 +721,15 @@ public class MyArrayList<E> extends AbstractList<E>
         int r;
         // Optimize for initial run of survivors
         for (r = from; ; r++) {
-            if (r == end)
+            if (r == end) // если не нашли, выйдем, вернем null
                 return false;
-            if (c.contains(es[r]) != complement)
+            if (c.contains(es[r]) != complement) // если нашли , то будем менять
                 break;
         }
         int w = r++;
         try {
             for (Object e; r < end; r++)
-                if (c.contains(e = es[r]) == complement)
+                if (c.contains(e = es[r]) == complement) // если есть нужный элемент, сохраним его
                     es[w++] = e;
         } catch (Throwable ex) {
             // Preserve behavioral compatibility with AbstractCollection,
@@ -831,7 +755,7 @@ public class MyArrayList<E> extends AbstractList<E>
      * (each an {@code Object}) in the proper order.
      */
     @java.io.Serial
-    private void writeObject(java.io.ObjectOutputStream s)
+    private void writeObject(java.io.ObjectOutputStream s)// отправим объект в поток
             throws java.io.IOException {
         // Write out element count, and any hidden stuff
         int expectedModCount = modCount;
@@ -860,7 +784,7 @@ public class MyArrayList<E> extends AbstractList<E>
      * @throws java.io.IOException    if an I/O error occurs
      */
     @java.io.Serial
-    private void readObject(java.io.ObjectInputStream s)
+    private void readObject(java.io.ObjectInputStream s) // получим массив из потока
             throws java.io.IOException, ClassNotFoundException {
 
         // Read in size, and any hidden stuff
@@ -930,7 +854,7 @@ public class MyArrayList<E> extends AbstractList<E>
     /**
      * An optimized version of AbstractList.Itr
      */
-    private class Itr implements Iterator<E> {
+    private class Itr implements Iterator<E> {// методы итератора
         int cursor;       // index of next element to return
         int lastRet = -1; // index of last element returned; -1 if no such
         int expectedModCount = modCount;
@@ -998,7 +922,7 @@ public class MyArrayList<E> extends AbstractList<E>
     /**
      * An optimized version of AbstractList.ListItr
      */
-    private class ListItr extends Itr implements ListIterator<E> {
+    private class ListItr extends Itr implements ListIterator<E> {// методы итератора для List
         ListItr(int index) {
             super();
             cursor = index;
@@ -1016,7 +940,7 @@ public class MyArrayList<E> extends AbstractList<E>
             return cursor - 1;
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings("unchecked") // возвратим предидущий элемент
         public E previous() {
             checkForComodification();
             int i = cursor - 1;
@@ -1029,7 +953,7 @@ public class MyArrayList<E> extends AbstractList<E>
             return (E) elementData[lastRet = i];
         }
 
-        public void set(E e) {
+        public void set(E e) {// замена
             if (lastRet < 0)
                 throw new IllegalStateException();
             checkForComodification();
@@ -1041,7 +965,7 @@ public class MyArrayList<E> extends AbstractList<E>
             }
         }
 
-        public void add(E e) {
+        public void add(E e) {// вставка элемента
             checkForComodification();
 
             try {
@@ -1090,7 +1014,7 @@ public class MyArrayList<E> extends AbstractList<E>
 //        return new SubList<>(this, fromIndex, toIndex);
 //    }
 
-    private static class SubList<E> extends AbstractList<E> implements RandomAccess {
+    private static class SubList<E> extends AbstractList<E> implements RandomAccess { // возвращает часть массива
         private final MyArrayList<E> root;
         private final SubList<E> parent;
         private final int offset;
@@ -1099,7 +1023,7 @@ public class MyArrayList<E> extends AbstractList<E>
         /**
          * Constructs a sublist of an arbitrary ArrayList.
          */
-        public SubList(MyArrayList<E> root, int fromIndex, int toIndex) {
+        public SubList(MyArrayList<E> root, int fromIndex, int toIndex) {// создается подлист из большого листа
             this.root = root;
             this.parent = null;
             this.offset = fromIndex;
@@ -1110,7 +1034,7 @@ public class MyArrayList<E> extends AbstractList<E>
         /**
          * Constructs a sublist of another SubList.
          */
-        private SubList(SubList<E> parent, int fromIndex, int toIndex) {
+        private SubList(SubList<E> parent, int fromIndex, int toIndex) {// создается подлист из подлиста
             this.root = parent.root;
             this.parent = parent;
             this.offset = parent.offset + fromIndex;
@@ -1118,7 +1042,7 @@ public class MyArrayList<E> extends AbstractList<E>
             this.modCount = parent.modCount;
         }
 
-        public E set(int index, E element) {
+        public E set(int index, E element) {// замена элемента на другой
             Objects.checkIndex(index, size);
             checkForComodification();
             E oldValue = root.elementData(offset + index);
@@ -1126,7 +1050,7 @@ public class MyArrayList<E> extends AbstractList<E>
             return oldValue;
         }
 
-        public E get(int index) {
+        public E get(int index) {// возвращение элемента по индексу
             Objects.checkIndex(index, size);
             checkForComodification();
             return root.elementData(offset + index);
@@ -1137,14 +1061,14 @@ public class MyArrayList<E> extends AbstractList<E>
             return size;
         }
 
-        public void add(int index, E element) {
+        public void add(int index, E element) {// добавление элемента по индексу
             rangeCheckForAdd(index);
             checkForComodification();
             root.add(offset + index, element);
             updateSizeAndModCount(1);
         }
 
-        public E remove(int index) {
+        public E remove(int index) {// удаление элемента по индексу
             Objects.checkIndex(index, size);
             checkForComodification();
             E result = root.remove(offset + index);
@@ -1152,7 +1076,7 @@ public class MyArrayList<E> extends AbstractList<E>
             return result;
         }
 
-        protected void removeRange(int fromIndex, int toIndex) {
+        protected void removeRange(int fromIndex, int toIndex) { // удаление диапазона
             checkForComodification();
             root.removeRange(offset + fromIndex, offset + toIndex);
             updateSizeAndModCount(fromIndex - toIndex);
@@ -1221,22 +1145,22 @@ public class MyArrayList<E> extends AbstractList<E>
             return a;
         }
 
-        public boolean equals(Object o) {
+        public boolean equals(Object o) {// если одинаковые ссылки, то true
             if (o == this) {
                 return true;
             }
 
-            if (!(o instanceof List)) {
+            if (!(o instanceof List)) {// если не List, то false
                 return false;
             }
 
-            boolean equal = root.equalsRange((List<?>) o, offset, offset + size);
+            boolean equal = root.equalsRange((List<?>) o, offset, offset + size);// сравним содержимое
             checkForComodification();
             return equal;
         }
 
         public int hashCode() {
-            int hash = root.hashCodeRange(offset, offset + size);
+            int hash = root.hashCodeRange(offset, offset + size);// вернем хэш
             checkForComodification();
             return hash;
         }
@@ -1683,7 +1607,7 @@ public class MyArrayList<E> extends AbstractList<E>
     }
 
     @Override
-    public void replaceAll(UnaryOperator<E> operator) {
+    public void replaceAll(UnaryOperator<E> operator) {// как я понял, функция для использования с лямбдой
         replaceAllRange(operator, 0, size);
         // TODO(8203662): remove increment of modCount from ...
         modCount++;
